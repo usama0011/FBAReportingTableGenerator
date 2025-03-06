@@ -1,0 +1,29 @@
+.container {
+  max-width: 1600px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.platform-row {
+  font-weight: bold;
+}
+
+.impression-device-row {
+  font-style: italic;
+}
+
+.custom-table .ant-table-container {
+  overflow-x: auto !important; /* ✅ Enable horizontal scrolling */
+}
+
+.custom-table .ant-table {
+  min-width: 100%; /* ✅ Ensure table expands when content overflows */
+}
