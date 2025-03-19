@@ -14,6 +14,8 @@ import "./App.css";
 import axios from "axios";
 import moment from "moment/moment";
 import { useNavigate } from "react-router-dom";
+import Papa from "papaparse";
+
 const { RangePicker } = DatePicker;
 
 const App = () => {
@@ -741,6 +743,52 @@ const App = () => {
     }
   };
 
+  // ✅ Function to download table data as CSV
+  const handleDownloadCSV = () => {
+    if (reportData.length === 0) {
+      message.error("No data available to download.");
+      return;
+    }
+
+    // ✅ Map table data to match CSV headers
+    const csvData = reportData.map((row) => ({
+      "Page ID": row.pageID || "",
+      "Entry Date": row.date || "",
+      "Page Name": row.pageName || "",
+      "Campaign Name": row.campaignName || "",
+      "Ad Set Name": row.adSetName || "",
+      "Ad Name": row.adName || "",
+      "Ad Creative": row.adCreative || "",
+      Platform: row.platform || "",
+      "Impression Devices": row.impressionDevices || "",
+      "Amount Spent": row.amountSpent
+        ? Number(row.amountSpent).toFixed(2)
+        : "0.00",
+      Impressions: row.impressions || "0",
+      Reach: row.reach || "0",
+      "Link Clicks": row.totalClicks || "0",
+      "Cost Per Result": row.costPerResult || "",
+      "CPC (Cost Per Click)": row.cpc || "",
+      "CPM (cost per 1,000 impressions)": row.cpm || "",
+      CTR: row.ctr || "",
+      "Clicks All": row.clicksAll || "0",
+      "CTR (All)": row.ctrAll || "",
+      "CPC (All)": row.cpcAll || "",
+    }));
+
+    // ✅ Convert data to CSV format
+    const csv = Papa.unparse(csvData);
+
+    // ✅ Create a downloadable CSV file
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Reportingdata.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <div className="container">
       <h2>Ad Campaign Form</h2>
@@ -856,6 +904,20 @@ const App = () => {
           </Button>
         </Form.Item>
       </Form>
+      {loading
+        ? "loading..."
+        : reportData.length > 0 && (
+            <>
+              <Button
+                type="default"
+                onClick={handleDownloadCSV}
+                style={{ marginBottom: "20px" }}
+              >
+                Downlaod Reporting Data
+              </Button>
+            </>
+          )}
+
       {loading ? (
         <Spin size="large" />
       ) : (
