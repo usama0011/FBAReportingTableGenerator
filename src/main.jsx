@@ -1,10 +1,17 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router";
+import App from "./App";
+import "./index.css";
+import CampaignTable from "./pages/CampaignTable";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+const root = document.getElementById("root");
+
+ReactDOM.createRoot(root).render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/campaingtable" element={<CampaignTable />} />
+    </Routes>
+  </BrowserRouter>
+);

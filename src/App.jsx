@@ -13,11 +13,18 @@ import {
 import "./App.css";
 import axios from "axios";
 import moment from "moment/moment";
+import { useNavigate } from "react-router-dom";
 const { RangePicker } = DatePicker;
 
 const App = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [reportData, setReportData] = useState([]);
+  const [formData, setFormData] = useState(null); // Stores the form data
+  const getRandomMultiplier = () =>
+    Math.floor(Math.random() * (80 - 70 + 1) + 70);
+  const getRandomImpressionMultiplier = () =>
+    Math.floor(Math.random() * (9 - 3 + 1) + 3);
 
   const onFinish = (values) => {
     setLoading(true);
@@ -35,6 +42,22 @@ const App = () => {
     const from = dateRange[0];
     const to = dateRange[1];
 
+    // Store form data in state
+    const staticDataForCampaings = {
+      pageID: values.pageID,
+      pageName: values.pageName,
+      campaignName: values.campaignName,
+      adSetName: values.adSetName,
+      adName: values.adName,
+      adCreative: values.adCreative,
+      timezoneID: values.timezoneID,
+      offerID: values.offerID,
+      affiliateID: values.affiliateID,
+      from,
+      to,
+    };
+
+    setFormData(staticDataForCampaings); // Save for navigation later
     // Call fetchReportingData with form values
     fetchReportingData({
       from,
@@ -45,6 +68,7 @@ const App = () => {
       affiliateId: affiliateID,
     });
   };
+
   const platformColors = {
     Android: "#ffcccc", // Light Red
     macOS: "#ccffcc", // Light Green
@@ -60,7 +84,10 @@ const App = () => {
     Marketplace: "#ffe599", // Light Orange
     Search: "#b4a7d6", // Light Purple
   };
-
+  const getRandomValue = () =>
+    (Math.random() * (0.55 - 0.11) + 0.11).toFixed(2);
+  const getRandomMultiplierForClicksAll = () =>
+    (Math.random() * (1.9 - 1.3) + 1.3).toFixed(2);
   const fetchReportingData = async ({
     from,
     to,
@@ -139,21 +166,127 @@ const App = () => {
           const platform =
             item.columns.find((col) => col.column_type === "platform")?.label ||
             "N/A";
-          let totalClicks = item.reporting.total_click || 0;
 
-          // ✅ Skip platforms that are NOT in the allowed list
+          let totalClicks = item.reporting.total_click || 0;
+          let totalClicksAll = 0;
+
+          // ✅ Clicks All for Main Row
+          const clicksAllMain = Math.round(
+            totalClicks * getRandomMultiplierForClicksAll()
+          );
+          totalClicksAll += clicksAllMain;
           if (!allowedPlatforms.includes(platform)) {
-            return; // ❌ Ignore and continue loop
+            return; // Skip unwanted platforms
           }
 
-          // If macOS, split 60% here and 40% for iPad
           let iPadClicks = 0;
           if (platform === "macOS") {
-            iPadClicks = Math.floor(totalClicks * 0.6); // 40% for iPad
-            totalClicks = Math.ceil(totalClicks * 0.4); // 60% remains in macOS
+            iPadClicks = Math.max(1, Math.floor(totalClicks * 0.4)); // Ensure at least 1 click for iPad
+            totalClicks = Math.ceil(totalClicks * 0.6);
           }
+          let totalReach = 0;
+          let totalImpressions = 0;
 
-          // ✅ Add the main row for the platform
+          // Store impression device cost values
+          let totalCostPerResult = 0;
+          let deviceCostResults = [];
+          let totalAmountSpent = 0;
+          let deviceReachResults = [];
+
+          // Generate values for each impression device
+          impressionDevices.forEach((device, deviceIndex) => {
+            const deviceClicks = Math.round(totalClicks * device.percentage);
+            const clicksAllImpressionDevice = Math.round(
+              deviceClicks * getRandomMultiplierForClicksAll()
+            );
+            totalClicksAll += clicksAllImpressionDevice;
+            const randomCost = parseFloat(getRandomValue());
+
+            const amountSpent = deviceClicks * randomCost;
+            const deviceCPC =
+              deviceClicks > 0
+                ? (amountSpent / deviceClicks).toFixed(2)
+                : "N/A";
+
+            totalAmountSpent += amountSpent; // Accumulate for platform "All" row
+            totalCostPerResult += randomCost;
+            deviceCostResults.push(randomCost);
+            // Calculate Reach using a random multiplier (between 70 and 80)
+            const reach = deviceClicks * getRandomMultiplier();
+            const impressions = reach * getRandomImpressionMultiplier();
+            const deviceCPM =
+              impressions > 0
+                ? ((amountSpent / impressions) * 1000).toFixed(2)
+                : "N/A";
+            totalReach += reach; // Accumulate for "All" row\
+            totalImpressions += impressions; // Accumulate for "All" row
+
+            deviceReachResults.push(reach);
+            const deviceCTR =
+              impressions > 0
+                ? ((deviceClicks / impressions) * 100).toFixed(2)
+                : "N/A"; // Calculate CTR (All) for the impression device
+            const ctrAllImpressionDevice =
+              impressions > 0
+                ? ((clicksAllImpressionDevice / impressions) * 100).toFixed(2)
+                : "N/A";
+            const cpcAllImpressionDevice =
+              clicksAllImpressionDevice > 0
+                ? (amountSpent / clicksAllImpressionDevice).toFixed(2)
+                : "N/A";
+            formattedData.push({
+              key: `${index}-impression-${deviceIndex}`,
+              date,
+              offer,
+              affiliate,
+              platform,
+              totalClicks: deviceClicks,
+              clicksAll: clicksAllImpressionDevice, // ✅ Clicks All for Impression Device
+              reach: reach.toFixed(0),
+              impressions: impressions.toFixed(0), // Store Impressions
+              pageID: staticData.pageID,
+              pageName: staticData.pageName,
+              campaignName: staticData.campaignName,
+              adSetName: staticData.adSetName,
+              adName: staticData.adName,
+              adCreative: staticData.adCreative,
+              impressionDevices: device.name,
+              costPerResult: randomCost,
+              amountSpent: amountSpent.toFixed(2),
+              cpc: deviceCPC, // ✅ Add CPC for each impression device
+              cpm: deviceCPM, // ✅ CPM for each impression device
+              ctr: deviceCTR, // ✅ CTR for each impression device
+              ctrAll: ctrAllImpressionDevice, // ✅ Now Added CTR (All) for the impression device
+              cpcAll: cpcAllImpressionDevice, // ✅ CPC (All) added here
+            });
+          });
+
+          // Calculate the average Cost Per Result
+          const avgCostPerResult =
+            totalClicks > 0
+              ? (totalAmountSpent / totalClicks).toFixed(2)
+              : "N/A";
+
+          const cpc =
+            totalClicks > 0
+              ? (totalAmountSpent / totalClicks).toFixed(2)
+              : "N/A";
+          const avgCPM =
+            totalImpressions > 0
+              ? ((totalAmountSpent / totalImpressions) * 1000).toFixed(2)
+              : "N/A";
+          const avgCTR =
+            totalImpressions > 0
+              ? ((totalClicks / totalImpressions) * 100).toFixed(2)
+              : "N/A";
+          const ctrAllMain =
+            totalImpressions > 0
+              ? ((clicksAllMain / totalImpressions) * 100).toFixed(2)
+              : "N/A";
+          const cpcAllMain =
+            clicksAllMain > 0
+              ? (totalAmountSpent / clicksAllMain).toFixed(2)
+              : "N/A";
           formattedData.push({
             key: `${index}-main`,
             date,
@@ -161,58 +294,79 @@ const App = () => {
             affiliate,
             platform,
             totalClicks,
+            reach: totalReach.toFixed(0),
+            impressions: totalImpressions.toFixed(0), // ✅ Fix: Add summed impressions
             pageID: staticData.pageID,
             pageName: staticData.pageName,
             campaignName: staticData.campaignName,
             adSetName: staticData.adSetName,
             adName: staticData.adName,
             adCreative: staticData.adCreative,
-            impressionDevices: "All", // New column
+            impressionDevices: "All",
+            costPerResult: avgCostPerResult,
+            amountSpent: totalAmountSpent.toFixed(2),
+            cpc,
+            cpm: avgCPM, // ✅ CPM for "All" platforms
+            ctr: avgCTR, // ✅ CTR for "All" platforms
+            clicksAll: clicksAllMain, // ✅ Clicks All Added
+            ctrAll: ctrAllMain, // ✅ Added CTR (All)
+            cpcAll: cpcAllMain, // ✅ CPC (All) added here
           });
 
-          // ✅ Distribute "All" clicks among impression devices
-          impressionDevices.forEach((device, deviceIndex) => {
-            const deviceClicks = Math.round(totalClicks * device.percentage); // Apply percentage
-
-            formattedData.push({
-              key: `${index}-impression-${deviceIndex}`,
-              date,
-              offer,
-              affiliate,
-              platform, // Keep platform repeated
-              totalClicks: deviceClicks, // Assigned based on percentage
-              pageID: staticData.pageID,
-              pageName: staticData.pageName,
-              campaignName: staticData.campaignName,
-              adSetName: staticData.adSetName,
-              adName: staticData.adName,
-              adCreative: staticData.adCreative,
-              impressionDevices: device.name, // Assign different devices
-            });
-          });
-
-          // ✅ Add iPad platform with 40% of macOS clicks
           if (iPadClicks > 0) {
-            formattedData.push({
-              key: `${index}-ipad-main`,
-              date,
-              offer,
-              affiliate,
-              platform: "iPad",
-              totalClicks: iPadClicks,
-              pageID: staticData.pageID,
-              pageName: staticData.pageName,
-              campaignName: staticData.campaignName,
-              adSetName: staticData.adSetName,
-              adName: staticData.adName,
-              adCreative: staticData.adCreative,
-              impressionDevices: "All",
-            });
+            let iPadTotalReach = 0;
+            let iPadTotalImpressions = 0;
+            let iPadTotalAmountSpent = 0;
+            let iPadTotalCostPerResult = 0;
+            let iPadTotalClicksAll = 0; // ✅ Initialize Clicks All total for iPad
 
-            // ✅ Distribute iPad clicks among impression devices
             impressionDevices.forEach((device, deviceIndex) => {
-              const deviceClicks = Math.round(iPadClicks * device.percentage); // Apply percentage
+              // ✅ Define deviceClicks BEFORE using it
+              const deviceClicks = Math.round(iPadClicks * device.percentage);
+              const clicksAllImpressionDevice = Math.round(
+                deviceClicks * getRandomMultiplierForClicksAll()
+              );
 
+              // ✅ Now, safely use deviceClicks
+              const clicksAlliPadImpression = Math.round(
+                deviceClicks * getRandomMultiplierForClicksAll()
+              );
+              iPadTotalClicksAll += clicksAlliPadImpression;
+
+              const randomCost = parseFloat(getRandomValue());
+              const amountSpent = deviceClicks * randomCost;
+
+              const reach = deviceClicks * getRandomMultiplier();
+              const impressions = reach * getRandomImpressionMultiplier();
+
+              iPadTotalReach += reach;
+              iPadTotalImpressions += impressions;
+              iPadTotalCostPerResult += randomCost;
+              iPadTotalAmountSpent += amountSpent;
+
+              const iPadCPC =
+                deviceClicks > 0
+                  ? (amountSpent / deviceClicks).toFixed(2)
+                  : "N/A";
+              const iPadCPM =
+                iPadTotalImpressions > 0
+                  ? (
+                      (iPadTotalAmountSpent / iPadTotalImpressions) *
+                      1000
+                    ).toFixed(2)
+                  : "N/A";
+              const iPadCTR =
+                iPadTotalImpressions > 0
+                  ? ((iPadClicks / iPadTotalImpressions) * 100).toFixed(2) + "%"
+                  : "N/A";
+              const ctrAllImpressionDevice =
+                impressions > 0
+                  ? ((clicksAllImpressionDevice / impressions) * 100).toFixed(2)
+                  : "N/A";
+              const cpcAlliPadImpression =
+                clicksAlliPadImpression > 0
+                  ? (amountSpent / clicksAlliPadImpression).toFixed(2)
+                  : "N/A";
               formattedData.push({
                 key: `${index}-ipad-impression-${deviceIndex}`,
                 date,
@@ -220,6 +374,8 @@ const App = () => {
                 affiliate,
                 platform: "iPad",
                 totalClicks: deviceClicks,
+                reach: reach.toFixed(0),
+                impressions: impressions.toFixed(0),
                 pageID: staticData.pageID,
                 pageName: staticData.pageName,
                 campaignName: staticData.campaignName,
@@ -227,7 +383,77 @@ const App = () => {
                 adName: staticData.adName,
                 adCreative: staticData.adCreative,
                 impressionDevices: device.name,
+                costPerResult: randomCost.toFixed(2),
+                amountSpent: amountSpent.toFixed(2),
+                cpc: iPadCPC,
+                cpm: iPadCPM,
+                ctr: iPadCTR,
+                clicksAll: clicksAlliPadImpression, // ✅ Clicks All for iPad Impression Device
+                ctrAll: ctrAllImpressionDevice, // ✅ Added CTR (All)
+                cpcAll: cpcAlliPadImpression, // ✅ CPC (All) added here
               });
+            });
+
+            const iPadAvgCostPerResult =
+              iPadTotalCostPerResult > 0
+                ? (iPadTotalCostPerResult / 5).toFixed(2)
+                : "0.00";
+
+            // ✅ Fix CPC Calculation
+            const iPadCPCAll =
+              iPadTotalClicksAll > 0
+                ? (iPadTotalAmountSpent / iPadTotalClicksAll).toFixed(2)
+                : "N/A";
+
+            // ✅ Fix CPM Calculation
+            const iPadCPMAll =
+              iPadTotalImpressions > 0
+                ? (
+                    (iPadTotalAmountSpent / iPadTotalImpressions) *
+                    1000
+                  ).toFixed(2)
+                : "N/A";
+
+            // ✅ Fix CTR Calculation
+            const iPadCTRAll =
+              iPadTotalImpressions > 0
+                ? ((iPadTotalClicksAll / iPadTotalImpressions) * 100).toFixed(
+                    2
+                  ) + "%"
+                : "N/A";
+            const ctrAlliPad =
+              iPadTotalImpressions > 0
+                ? ((iPadTotalClicksAll / iPadTotalImpressions) * 100).toFixed(2)
+                : "N/A";
+            const cpcAlliPad =
+              iPadTotalClicksAll > 0
+                ? (iPadTotalAmountSpent / iPadTotalClicksAll).toFixed(2)
+                : "N/A";
+            // ✅ Push iPad "All" row with correctly summed values
+            formattedData.push({
+              key: `${index}-ipad-main`,
+              date,
+              offer,
+              affiliate,
+              platform: "iPad",
+              totalClicks: iPadClicks,
+              reach: iPadTotalReach.toFixed(0),
+              impressions: iPadTotalImpressions.toFixed(0),
+              pageID: staticData.pageID,
+              pageName: staticData.pageName,
+              campaignName: staticData.campaignName,
+              adSetName: staticData.adSetName,
+              adName: staticData.adName,
+              adCreative: staticData.adCreative,
+              impressionDevices: "All",
+              costPerResult: iPadAvgCostPerResult,
+              amountSpent: iPadTotalAmountSpent.toFixed(2),
+              cpc: iPadCPCAll, // ✅ Now correctly calculated
+              cpm: iPadCPMAll, // ✅ Now correctly calculated
+              ctr: iPadCTRAll, // ✅ Now correctly calculated
+              clicksAll: iPadTotalClicksAll, // ✅ Summed at the end
+              ctrAll: ctrAlliPad, // ✅ Added CTR (All)
+              cpcAll: cpcAlliPad, // ✅ CPC (All) added here
             });
           }
         });
@@ -238,8 +464,116 @@ const App = () => {
             moment(a.date, "YYYY-MM-DD").unix() -
             moment(b.date, "YYYY-MM-DD").unix()
         );
+        const {
+          campaignName,
+          adSetName,
+          adCreative,
+          adName,
+          pageName,
+          date,
+          pageID,
+        } = staticData;
+        const reportStartDate = from ? from.format("YYYY-MM-DD") : "N/A";
 
-        setReportData(formattedData);
+        // Insert the four extra rows **only once** at the top
+        const extraRows = [
+          {
+            key: "extra4",
+            date: reportStartDate,
+            offer: "N/A",
+            affiliate: "N/A",
+            platform: "All",
+            totalClicks: "",
+            reach: "",
+            impressions: "",
+            pageID: pageID,
+            pageName,
+            campaignName: campaignName,
+            adSetName: "All",
+            adName: "All",
+            adCreative: "All",
+            impressionDevices: "All",
+            costPerResult: "",
+            amountSpent: "",
+            cpc: "",
+            cpm: "",
+            ctr: "",
+            ctrAll: "",
+          },
+          {
+            key: "extra3",
+            date: reportStartDate,
+            offer: "N/A",
+            affiliate: "N/A",
+            platform: "All",
+            totalClicks: "",
+            reach: "",
+            impressions: "",
+            pageID: pageID,
+            pageName,
+            campaignName,
+            adSetName: adSetName,
+            adName: "All",
+            adCreative: "All",
+            impressionDevices: "All",
+            costPerResult: "",
+            amountSpent: "",
+            cpc: "",
+            cpm: "",
+            ctr: "",
+            ctrAll: "",
+          },
+          {
+            key: "extra2",
+            date: reportStartDate,
+            offer: "N/A",
+            affiliate: "N/A",
+            platform: "All",
+            totalClicks: "",
+            reach: "",
+            impressions: "",
+            pageID: pageID,
+            pageName,
+            campaignName,
+            adSetName: adSetName,
+            adName: adName,
+            adCreative: "All",
+            impressionDevices: "All",
+            costPerResult: "",
+            amountSpent: "",
+            cpc: "",
+            cpm: "",
+            ctr: "",
+            ctrAll: "",
+          },
+          {
+            key: "extra1",
+            date: reportStartDate,
+            offer: "N/A",
+            affiliate: "N/A",
+            platform: "All",
+            totalClicks: "",
+            reach: "",
+            impressions: "",
+            pageID: pageID,
+            pageName,
+            campaignName,
+            adSetName: adSetName,
+            adName: adName,
+            adCreative: adCreative,
+            impressionDevices: "All",
+            costPerResult: "",
+            amountSpent: "",
+            cpc: "",
+            cpm: "",
+            ctr: "",
+            ctrAll: "",
+          },
+        ];
+
+        // Combine extra rows and data
+        const finalData = [...extraRows, ...formattedData];
+        setReportData(finalData);
       }
     } catch (error) {
       console.error("Error fetching report data:", error);
@@ -248,13 +582,18 @@ const App = () => {
     }
   };
   const columns = [
-    { title: "Date", dataIndex: "date", key: "date" },
     { title: "Page ID", dataIndex: "pageID", key: "pageID" },
+    { title: "Entry Date", dataIndex: "date", key: "date" },
     { title: "Page Name", dataIndex: "pageName", key: "pageName" },
-    { title: "Campaign Name", dataIndex: "campaignName", key: "campaignName" },
+    {
+      title: "Campaign Name",
+      dataIndex: "campaignName",
+      key: "campaignName",
+      width: "200px",
+    },
     { title: "Ad Set Name", dataIndex: "adSetName", key: "adSetName" },
-    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative" },
     { title: "Ad Name", dataIndex: "adName", key: "adName" },
+    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative" },
     {
       title: "Platform",
       dataIndex: "platform",
@@ -275,6 +614,7 @@ const App = () => {
       title: "Impression Devices",
       dataIndex: "impressionDevices",
       key: "impressionDevices",
+      width: "200px",
       render: (text) => (
         <span
           style={{
@@ -288,24 +628,111 @@ const App = () => {
       ),
     },
     {
+      title: "Amount Spent",
+      dataIndex: "amountSpent",
+      key: "amountSpent",
+      width: 200,
+    },
+    {
+      title: "Impressions",
+      dataIndex: "impressions",
+      key: "impressions",
+      width: 200,
+    },
+    {
+      title: "Reach",
+      dataIndex: "reach",
+      key: "reach",
+      width: 200,
+    },
+    {
       title: "Link Clicks",
       dataIndex: "totalClicks",
       key: "totalClicks",
       width: 200,
     },
-    { title: "Amount Spent", dataIndex: "", key: "", width: 200 },
-    { title: "Impressions", dataIndex: "", key: "", width: 200 },
-    { title: "Reach", dataIndex: "", key: "", width: 200 },
-    { title: "Amount Spent", dataIndex: "", key: "", width: 200 },
-    { title: "CPC (cost per link click)", dataIndex: "", key: "", width: 200 },
+
     {
-      title: "CPM (cost per 1,000 impressions)",
-      dataIndex: "",
-      key: "",
+      title: "Cost Per Result",
+      dataIndex: "costPerResult",
+      key: "costPerResult",
       width: 200,
     },
-    { title: "CTR (all)", dataIndex: "", key: "", width: 200 },
+
+    {
+      title: "CPC (Cost Per Click)",
+      dataIndex: "cpc",
+      key: "cpc",
+      width: 200,
+    },
+
+    {
+      title: "CPM (cost per 1,000 impressions)",
+      dataIndex: "cpm",
+      key: "cpm",
+      width: 200,
+    },
+    { title: "CTR", dataIndex: "ctr", key: "ctr", width: 200 },
+    {
+      title: "Clicks All",
+      dataIndex: "clicksAll",
+      key: "clicksAll",
+      width: 200,
+    },
+    {
+      title: "CTR (All)",
+      dataIndex: "ctrAll",
+      key: "ctrAll",
+      width: 200,
+    },
+    {
+      title: "CPC (All)",
+      dataIndex: "cpcAll",
+      key: "cpcAll",
+      width: 200,
+    },
   ];
+  const handleNavigateToCampaignTable = () => {
+    if (formData) {
+      // Calculate Reach, Impressions & Amount Spent Sum by Date
+      const reachByDate = {};
+      const impressionByDate = {};
+      const amountSpentByDate = {};
+
+      reportData.forEach((item) => {
+        if (item.impressionDevices === "All") {
+          // ✅ Sum up Reach
+          if (!reachByDate[item.date]) {
+            reachByDate[item.date] = 0;
+          }
+          reachByDate[item.date] += Number(item.reach) || 0;
+
+          // ✅ Sum up Impressions
+          if (!impressionByDate[item.date]) {
+            impressionByDate[item.date] = 0;
+          }
+          impressionByDate[item.date] += Number(item.impressions) || 0;
+
+          // ✅ Sum up Amount Spent
+          if (!amountSpentByDate[item.date]) {
+            amountSpentByDate[item.date] = 0;
+          }
+          amountSpentByDate[item.date] += Number(item.amountSpent) || 0;
+        }
+      });
+
+      // ✅ Add Reach, Impressions & Amount Spent to formData
+      const updatedFormData = {
+        ...formData,
+        reachByDate,
+        impressionByDate,
+        amountSpentByDate,
+      };
+
+      navigate("/campaingtable", { state: updatedFormData });
+    }
+  };
+
   return (
     <div className="container">
       <h2>Ad Campaign Form</h2>
@@ -436,6 +863,22 @@ const App = () => {
           columns={columns}
           pagination={false}
         />
+      )}
+      {/* Show Table only if report data exists */}
+      {loading ? (
+        <Spin size="large" />
+      ) : (
+        reportData.length > 0 && (
+          <>
+            <Button
+              type="default"
+              onClick={handleNavigateToCampaignTable}
+              style={{ marginTop: "20px" }}
+            >
+              Genreate Campaigns Data
+            </Button>
+          </>
+        )
       )}
     </div>
   );
