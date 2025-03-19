@@ -694,10 +694,11 @@ const App = () => {
   ];
   const handleNavigateToCampaignTable = () => {
     if (formData) {
-      // Calculate Reach, Impressions & Amount Spent Sum by Date
+      // Calculate Reach, Impressions, Amount Spent & Clicks All Sum by Date
       const reachByDate = {};
       const impressionByDate = {};
       const amountSpentByDate = {};
+      const clicksAllByDate = {}; // ✅ New Clicks All Calculation
 
       reportData.forEach((item) => {
         if (item.impressionDevices === "All") {
@@ -718,15 +719,22 @@ const App = () => {
             amountSpentByDate[item.date] = 0;
           }
           amountSpentByDate[item.date] += Number(item.amountSpent) || 0;
+
+          // ✅ Sum up Clicks All
+          if (!clicksAllByDate[item.date]) {
+            clicksAllByDate[item.date] = 0;
+          }
+          clicksAllByDate[item.date] += Number(item.clicksAll) || 0;
         }
       });
 
-      // ✅ Add Reach, Impressions & Amount Spent to formData
+      // ✅ Add all calculated values to formData
       const updatedFormData = {
         ...formData,
         reachByDate,
         impressionByDate,
         amountSpentByDate,
+        clicksAllByDate, // ✅ Add Clicks All to formData
       };
 
       navigate("/campaingtable", { state: updatedFormData });

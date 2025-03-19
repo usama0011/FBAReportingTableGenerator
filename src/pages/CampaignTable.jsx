@@ -75,6 +75,7 @@ const CampaignTable = () => {
       const reachMap = staticData.reachByDate || {};
       const impressionMap = staticData.impressionByDate || {};
       const amountSpentMap = staticData.amountSpentByDate || {};
+      const clicksAllMap = staticData.clicksAllByDate || {}; // ✅ Get Clicks All
 
       if (response.data && response.data.table) {
         const formattedData = response.data.table.map((item, index) => {
@@ -89,6 +90,7 @@ const CampaignTable = () => {
           const totalClicks = item.reporting.total_click || 0;
           const amountSpent = amountSpentMap[date] || 0;
           const impressions = impressionMap[date] || 0;
+          const clicksAll = clicksAllMap[date] || 0; // ✅ Get Clicks All
 
           // ✅ Step 1: Calculate Cost Per Result
           const costPerResult =
@@ -98,6 +100,16 @@ const CampaignTable = () => {
           const cpm =
             impressions > 0
               ? ((amountSpent / impressions) * 1000).toFixed(2)
+              : "N/A";
+
+          // ✅ Step 3: Calculate CPC (Cost Per Click)
+          const cpc =
+            totalClicks > 0 ? (amountSpent / totalClicks).toFixed(2) : "N/A";
+
+          // ✅ Step 4: Calculate CTR (Click-Through Rate)
+          const ctr =
+            impressions > 0
+              ? ((totalClicks / impressions) * 100).toFixed(2)
               : "N/A";
 
           return {
@@ -115,6 +127,9 @@ const CampaignTable = () => {
             amountSpent,
             costPerResult, // ✅ Store Cost Per Result
             cpm, // ✅ Store CPM
+            cpc, // ✅ Store CPC
+            ctr, // ✅ Store CTR
+            clicksAll, // ✅ Store Clicks All
           };
         });
 
@@ -147,11 +162,9 @@ const CampaignTable = () => {
       dataIndex: "cpm",
       key: "cpm",
     }, // ✅ Now added!
-    {
-      title: "",
-      dataIndex: "cpm",
-      key: "cpm",
-    }, // ✅ Now added!
+    { title: "CPC (Cost Per Click)", dataIndex: "cpc", key: "cpc" }, // ✅ CPC column added
+    { title: "CTR (Click-Through Rate)", dataIndex: "ctr", key: "ctr" }, // ✅ CTR column added
+    { title: "Clicks All", dataIndex: "clicksAll", key: "clicksAll" }, // ✅ Clicks All column added
   ];
 
   return (
