@@ -744,12 +744,24 @@ const App = () => {
   };
 
   const orderedImpressionDevices = [
-    "Feed",
-    "Video_feeds",
     "Facebook Stories",
+    "Feed",
     "Marketplace",
     "Search",
+    "Video_feeds",
   ];
+
+  // ✅ Platform name replacements for CSV
+  const platformLabelMap = {
+    Android: "Device: Android Smartphone",
+    macOS: "Device: Android Tablet",
+    Windows: "Device: Desktop",
+    iPad: "Device: iPad",
+    iOS: "Device: iPhone",
+  };
+
+  // ✅ Ordered platform sequence
+  const orderedPlatforms = ["Android", "macOS", "Windows", "iPad", "iOS"];
 
   const handleDownloadCSV = () => {
     if (reportData.length === 0) {
@@ -787,42 +799,46 @@ const App = () => {
         }
       });
 
-    // ✅ Step 3: Sort keys by date then platform
-    const sortedKeys = Object.keys(grouped).sort((a, b) => {
-      const [dateA, platformA] = a.split("_");
-      const [dateB, platformB] = b.split("_");
-
-      return dateA === dateB
-        ? platformA.localeCompare(platformB)
-        : dateA.localeCompare(dateB);
+    // ✅ Group keys by date first
+    const groupedByDate = {};
+    Object.keys(grouped).forEach((key) => {
+      const [date, platform] = key.split("_");
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = {};
+      }
+      groupedByDate[date][platform] = grouped[key];
     });
 
-    // ✅ Step 4: Collect rows per date
+    // ✅ Step 4: Build final reordered data
     let reorderedData = [];
-    let currentDate = "";
 
-    sortedKeys.forEach((key) => {
-      const { date, allRow, devices } = grouped[key];
+    const sortedDates = Object.keys(groupedByDate).sort(); // Sort dates ascending
 
-      // If new date block starts, add topAllRows first (with updated date)
-      if (date !== currentDate) {
-        currentDate = date;
-        const duplicatedTopRows = topAllRows.map((row) => ({
-          ...row,
-          date: currentDate, // ✅ Override the date with the current date
-        }));
-        reorderedData.push(...duplicatedTopRows);
-      }
+    sortedDates.forEach((date) => {
+      // Inject 4 All-All rows at the top of each date (with current date set)
+      const duplicatedTopRows = topAllRows.map((row) => ({
+        ...row,
+        date: date,
+      }));
+      reorderedData.push(...duplicatedTopRows);
 
-      if (allRow) reorderedData.push(allRow);
+      const platformsInDate = groupedByDate[date];
 
-      orderedImpressionDevices.forEach((device) => {
-        const match = devices.find((r) => r.impressionDevices === device);
-        if (match) reorderedData.push(match);
+      orderedPlatforms.forEach((platform) => {
+        const key = `${date}_${platform}`;
+        if (platformsInDate[platform]) {
+          const { allRow, devices } = platformsInDate[platform];
+          if (allRow) reorderedData.push(allRow);
+
+          orderedImpressionDevices.forEach((device) => {
+            const match = devices.find((r) => r.impressionDevices === device);
+            if (match) reorderedData.push(match);
+          });
+        }
       });
     });
 
-    // ✅ Step 5: Prepare CSV Data
+    // ✅ Step 5: Prepare CSV Data with replaced platform names
     const csvData = reorderedData.map((row) => ({
       "Page ID": row.pageID || "",
       "Entry Date": row.date || "",
@@ -831,7 +847,7 @@ const App = () => {
       "Ad Set Name": row.adSetName || "",
       "Ad Name": row.adName || "",
       "Ad Creative": row.adCreative || "",
-      Platform: row.platform || "",
+      Platform: platformLabelMap[row.platform] || row.platform || "",
       "Impression Devices": row.impressionDevices || "",
       "Amount Spent": row.amountSpent
         ? Number(row.amountSpent).toFixed(2)
