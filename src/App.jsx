@@ -743,15 +743,87 @@ const App = () => {
     }
   };
 
-  // ✅ Function to download table data as CSV
+  const orderedImpressionDevices = [
+    "Feed",
+    "Video_feeds",
+    "Facebook Stories",
+    "Marketplace",
+    "Search",
+  ];
+
   const handleDownloadCSV = () => {
     if (reportData.length === 0) {
       message.error("No data available to download.");
       return;
     }
 
-    // ✅ Map table data to match CSV headers
-    const csvData = reportData.map((row) => ({
+    // ✅ Extract the 4 "All-All" rows to inject later
+    const topAllRows = reportData.filter(
+      (row) => row.platform === "All" && row.impressionDevices === "All"
+    );
+
+    // ✅ Group remaining data by date + platform
+    const grouped = {};
+
+    reportData
+      .filter(
+        (row) => !(row.platform === "All" && row.impressionDevices === "All")
+      )
+      .forEach((row) => {
+        const key = `${row.date}_${row.platform}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            date: row.date,
+            platform: row.platform,
+            allRow: null,
+            devices: [],
+          };
+        }
+
+        if (row.impressionDevices === "All") {
+          grouped[key].allRow = row;
+        } else {
+          grouped[key].devices.push(row);
+        }
+      });
+
+    // ✅ Step 3: Sort keys by date then platform
+    const sortedKeys = Object.keys(grouped).sort((a, b) => {
+      const [dateA, platformA] = a.split("_");
+      const [dateB, platformB] = b.split("_");
+
+      return dateA === dateB
+        ? platformA.localeCompare(platformB)
+        : dateA.localeCompare(dateB);
+    });
+
+    // ✅ Step 4: Collect rows per date
+    let reorderedData = [];
+    let currentDate = "";
+
+    sortedKeys.forEach((key) => {
+      const { date, allRow, devices } = grouped[key];
+
+      // If new date block starts, add topAllRows first (with updated date)
+      if (date !== currentDate) {
+        currentDate = date;
+        const duplicatedTopRows = topAllRows.map((row) => ({
+          ...row,
+          date: currentDate, // ✅ Override the date with the current date
+        }));
+        reorderedData.push(...duplicatedTopRows);
+      }
+
+      if (allRow) reorderedData.push(allRow);
+
+      orderedImpressionDevices.forEach((device) => {
+        const match = devices.find((r) => r.impressionDevices === device);
+        if (match) reorderedData.push(match);
+      });
+    });
+
+    // ✅ Step 5: Prepare CSV Data
+    const csvData = reorderedData.map((row) => ({
       "Page ID": row.pageID || "",
       "Entry Date": row.date || "",
       "Page Name": row.pageName || "",
@@ -776,10 +848,8 @@ const App = () => {
       "CPC (All)": row.cpcAll || "",
     }));
 
-    // ✅ Convert data to CSV format
+    // ✅ Download CSV
     const csv = Papa.unparse(csvData);
-
-    // ✅ Create a downloadable CSV file
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -789,6 +859,7 @@ const App = () => {
     link.click();
     document.body.removeChild(link);
   };
+
   return (
     <div className="container">
       <h2>Ad Campaign Form</h2>
