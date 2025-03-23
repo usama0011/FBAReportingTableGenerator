@@ -865,12 +865,13 @@ const App = () => {
       "Page ID": row.pageID || "",
       "Entry Date": row.date || "",
       "Page Name": row.pageName || "",
+      Delivery: row.Delivery || "",
+      Frequency: row.Frequency || "",
       "Campaign Name": row.campaignName || "",
       "Ad Set Name": row.adSetName || "",
       "Ad Name": row.adName || "",
       "Ad Creative": row.adCreative || "",
-      Delivery: row.Delivery || "",
-      Frequency: row.Frequency || "",
+
       "Impression Device": platformLabelMap[row.platform] || row.platform || "",
       Placement: row.impressionDevices || "",
       "Amount Spent": row.amountSpent
