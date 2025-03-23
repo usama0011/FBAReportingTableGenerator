@@ -862,8 +862,8 @@ const App = () => {
 
     // ✅ Step 5: Prepare CSV Data with replaced platform names
     const csvData = reorderedData.map((row) => ({
-      "Page ID": row.pageID || "",
       "Entry Date": row.date || "",
+      "Page ID": row.pageID || "",
       "Page Name": row.pageName || "",
       Delivery: row.Delivery || "",
       Frequency: row.Frequency || "",
@@ -871,21 +871,18 @@ const App = () => {
       "Ad Set Name": row.adSetName || "",
       "Ad Name": row.adName || "",
       "Ad Creative": row.adCreative || "",
-
       "Impression Device": platformLabelMap[row.platform] || row.platform || "",
       Placement: row.impressionDevices || "",
-      "Amount Spent": row.amountSpent
-        ? Number(row.amountSpent).toFixed(2)
-        : "0.00",
-      Impressions: row.impressions || "0",
-      Reach: row.reach || "0",
-      Results: row.totalClicks || "0",
-      "Link Clicks": row.totalClicks || "0",
+      "Amount Spent": row.amountSpent ? Number(row.amountSpent).toFixed(2) : "",
+      Impressions: row.impressions || "",
+      Reach: row.reach || "",
+      Results: row.totalClicks || "",
+      "Link Clicks": row.totalClicks || "",
       "Cost per result": row.costPerResult || "",
       "CPC (cost per link click)": row.cpc || "",
       "CPM (cost per 1,000 impressions)": row.cpm || "",
       CTR: row.ctr || "",
-      "Clicks (all)": row.clicksAll || "0",
+      "Clicks (all)": row.clicksAll || "",
       "CTR (all)": row.ctrAll || "",
       "CPC (all)": row.cpcAll || "",
     }));

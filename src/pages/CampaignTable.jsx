@@ -328,7 +328,7 @@ const CampaignTable = () => {
     // ✅ Map data to match correct CSV headers with requested keys
     const csvData = campaignData.map((row) => ({
       entryDate: row.date || "N/A",
-      currentSwitch: row.currentSwitch ? "True" : "False",
+      currentSwitch: row.currentSwitch ? "true" : "false",
       pageID: row.pageID || "N/A",
       sponsorName: row.pageName || "N/A",
       sponsorImageURL: row.pageImageLink || "N/A",
@@ -339,10 +339,6 @@ const CampaignTable = () => {
       Bidstrategy: row.bidStrategy || "N/A",
       Budget: row.budget || "N/A",
       Attributionsetting: row.attributionSettings || "N/A",
-      Results: row.totalClicks || "0",
-      Reach: row.reach || "0",
-      Impressions: row.impressions || "0",
-      Costperresult: row.costPerResult || "N/A",
       Ends: row.Ends || "N/A",
       campaingImage: row.campaignImageLink || "N/A",
       LinksClicks: row.totalClicks || "0",
@@ -354,6 +350,10 @@ const CampaignTable = () => {
       quoteheading: row.quoteheading || "N/A",
       quotetext: row.quotetext || "N/A",
       frequency: row.Frequency || "N/A",
+      Results: row.totalClicks || "0",
+      Reach: row.reach || "0",
+      Impressions: row.impressions || "0",
+      Costperresult: row.costPerResult || "N/A",
       CPM: row.cpm || "N/A", // ✅ Store CPM
       CPC: row.cpc || "N/A", // ✅ Store CPC
       ctr: row.ctr || "N/A", // ✅ Store CTR
