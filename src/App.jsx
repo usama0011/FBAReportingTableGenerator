@@ -52,6 +52,8 @@ const App = () => {
       adSetName: values.adSetName,
       adName: values.adName,
       adCreative: values.adCreative,
+      Delivery: values.Delivery,
+      Frequency: values.Frequency,
       timezoneID: values.timezoneID,
       offerID: values.offerID,
       affiliateID: values.affiliateID,
@@ -252,6 +254,8 @@ const App = () => {
               adSetName: staticData.adSetName,
               adName: staticData.adName,
               adCreative: staticData.adCreative,
+              Delivery: staticData.Delivery,
+              Frequency: staticData.Frequency,
               impressionDevices: device.name,
               costPerResult: randomCost,
               amountSpent: amountSpent.toFixed(2),
@@ -304,6 +308,8 @@ const App = () => {
             adSetName: staticData.adSetName,
             adName: staticData.adName,
             adCreative: staticData.adCreative,
+            Delivery: staticData.Delivery,
+            Frequency: staticData.Frequency,
             impressionDevices: "All",
             costPerResult: avgCostPerResult,
             amountSpent: totalAmountSpent.toFixed(2),
@@ -384,6 +390,8 @@ const App = () => {
                 adSetName: staticData.adSetName,
                 adName: staticData.adName,
                 adCreative: staticData.adCreative,
+                Delivery: staticData.Delivery,
+                Frequency: staticData.Frequency,
                 impressionDevices: device.name,
                 costPerResult: randomCost.toFixed(2),
                 amountSpent: amountSpent.toFixed(2),
@@ -447,6 +455,8 @@ const App = () => {
               adSetName: staticData.adSetName,
               adName: staticData.adName,
               adCreative: staticData.adCreative,
+              Delivery: staticData.Delivery,
+              Frequency: staticData.Frequency,
               impressionDevices: "All",
               costPerResult: iPadAvgCostPerResult,
               amountSpent: iPadTotalAmountSpent.toFixed(2),
@@ -470,6 +480,8 @@ const App = () => {
           campaignName,
           adSetName,
           adCreative,
+          Delivery,
+          Frequency,
           adName,
           pageName,
           date,
@@ -494,6 +506,8 @@ const App = () => {
             adSetName: "All",
             adName: "All",
             adCreative: "All",
+            Delivery: Delivery,
+            Frequency: Frequency,
             impressionDevices: "All",
             costPerResult: "",
             amountSpent: "",
@@ -512,6 +526,8 @@ const App = () => {
             reach: "",
             impressions: "",
             pageID: pageID,
+            Delivery: Delivery,
+            Frequency: Frequency,
             pageName,
             campaignName,
             adSetName: adSetName,
@@ -535,6 +551,8 @@ const App = () => {
             reach: "",
             impressions: "",
             pageID: pageID,
+            Delivery: Delivery,
+            Frequency: Frequency,
             pageName,
             campaignName,
             adSetName: adSetName,
@@ -558,6 +576,8 @@ const App = () => {
             reach: "",
             impressions: "",
             pageID: pageID,
+            Delivery: Delivery,
+            Frequency: Frequency,
             pageName,
             campaignName,
             adSetName: adSetName,
@@ -587,6 +607,8 @@ const App = () => {
     { title: "Page ID", dataIndex: "pageID", key: "pageID" },
     { title: "Entry Date", dataIndex: "date", key: "date" },
     { title: "Page Name", dataIndex: "pageName", key: "pageName" },
+    { title: "Delivery", dataIndex: "Delivery", key: "Delivery" },
+    { title: "Frequency", dataIndex: "Frequency", key: "Frequency" },
     {
       title: "Campaign Name",
       dataIndex: "campaignName",
@@ -847,21 +869,24 @@ const App = () => {
       "Ad Set Name": row.adSetName || "",
       "Ad Name": row.adName || "",
       "Ad Creative": row.adCreative || "",
-      Platform: platformLabelMap[row.platform] || row.platform || "",
-      "Impression Devices": row.impressionDevices || "",
+      Delivery: row.Delivery || "",
+      Frequency: row.Frequency || "",
+      "Impression Device": platformLabelMap[row.platform] || row.platform || "",
+      Placement: row.impressionDevices || "",
       "Amount Spent": row.amountSpent
         ? Number(row.amountSpent).toFixed(2)
         : "0.00",
       Impressions: row.impressions || "0",
       Reach: row.reach || "0",
+      Results: row.totalClicks || "0",
       "Link Clicks": row.totalClicks || "0",
-      "Cost Per Result": row.costPerResult || "",
-      "CPC (Cost Per Click)": row.cpc || "",
+      "Cost per result": row.costPerResult || "",
+      "CPC (cost per link click)": row.cpc || "",
       "CPM (cost per 1,000 impressions)": row.cpm || "",
       CTR: row.ctr || "",
-      "Clicks All": row.clicksAll || "0",
-      "CTR (All)": row.ctrAll || "",
-      "CPC (All)": row.cpcAll || "",
+      "Clicks (all)": row.clicksAll || "0",
+      "CTR (all)": row.ctrAll || "",
+      "CPC (all)": row.cpcAll || "",
     }));
 
     // ✅ Download CSV
@@ -980,6 +1005,24 @@ const App = () => {
               rules={[{ required: true, message: "Please enter Ad Creative" }]}
             >
               <Input placeholder="Enter Ad Creative" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Delivery"
+              name="Delivery"
+              rules={[{ required: true, message: "Please enter Delivery" }]}
+            >
+              <Input placeholder="Enter Delivery" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Frequency"
+              name="Frequency"
+              rules={[{ required: true, message: "Please enter Frequency" }]}
+            >
+              <Input placeholder="Enter Frequency" />
             </Form.Item>
           </Col>
         </Row>

@@ -38,7 +38,6 @@ const CampaignTable = () => {
     affiliateID,
     campaignImageLink,
     currentSwitch,
-    delivery,
     bidStrategy,
     attributionSettings,
     campaignLink,
@@ -50,9 +49,10 @@ const CampaignTable = () => {
     lastSignificent,
     quoteheading,
     quotetext,
-    frequency,
     sechdule,
     campaignName,
+    Frequency,
+    Delivery,
   }) => {
     setLoading(true);
 
@@ -169,7 +169,6 @@ const CampaignTable = () => {
             cpcAll, // ✅ Store CPC (All)
             campaignImageLink,
             currentSwitch,
-            delivery,
             bidStrategy,
             attributionSettings,
             campaignLink,
@@ -181,8 +180,9 @@ const CampaignTable = () => {
             lastSignificent,
             quoteheading,
             quotetext,
-            frequency,
             campaignName,
+            Frequency,
+            Delivery,
             sechdule,
           };
         });
@@ -235,7 +235,7 @@ const CampaignTable = () => {
       key: "pageImageLink",
       width: 250,
     },
-    { title: "Delivery", dataIndex: "delivery", key: "delivery", width: 250 },
+    { title: "Delivery", dataIndex: "Delivery", key: "Delivery", width: 250 },
     {
       title: "Bid Strategy",
       dataIndex: "bidStrategy",
@@ -247,8 +247,8 @@ const CampaignTable = () => {
     { title: "sechdule", dataIndex: "sechdule", key: "sechdule", width: 250 },
     {
       title: "Frequency",
-      dataIndex: "frequency",
-      key: "frequency",
+      dataIndex: "Frequency",
+      key: "Frequency",
       width: 250,
     },
     {
@@ -327,34 +327,39 @@ const CampaignTable = () => {
 
     // ✅ Map data to match correct CSV headers with requested keys
     const csvData = campaignData.map((row) => ({
-      pageID: row.pageID || "N/A",
+      entryDate: row.date || "N/A",
       currentSwitch: row.currentSwitch ? "True" : "False",
+      pageID: row.pageID || "N/A",
+      sponsorName: row.pageName || "N/A",
+      sponsorImageURL: row.pageImageLink || "N/A",
       campaingname: row.campaignName || "N/A",
       campainglink: row.campaignLink || "N/A",
       adname: row.adName || "N/A",
-      Delivery: row.delivery || "N/A",
+      Delivery: row.Delivery || "N/A",
       Bidstrategy: row.bidStrategy || "N/A",
       Budget: row.budget || "N/A",
       Attributionsetting: row.attributionSettings || "N/A",
+      Results: row.totalClicks || "0",
       Reach: row.reach || "0",
       Impressions: row.impressions || "0",
       Costperresult: row.costPerResult || "N/A",
+      Ends: row.Ends || "N/A",
+      campaingImage: row.campaignImageLink || "N/A",
+      LinksClicks: row.totalClicks || "0",
       Amountspent: row.amountSpent
         ? Number(row.amountSpent).toFixed(2)
         : "0.00",
-      Ends: row.Ends || "N/A",
-      campaingImage: row.campaignImageLink || "N/A",
       lastSignificent: row.lastSignificent || "N/A",
       schedule: row.sechdule || "N/A",
       quoteheading: row.quoteheading || "N/A",
       quotetext: row.quotetext || "N/A",
-      frequency: row.frequency || "N/A",
-      cpm: row.cpm || "N/A", // ✅ Store CPM
-      cpc: row.cpc || "N/A", // ✅ Store CPC
+      frequency: row.Frequency || "N/A",
+      CPM: row.cpm || "N/A", // ✅ Store CPM
+      CPC: row.cpc || "N/A", // ✅ Store CPC
       ctr: row.ctr || "N/A", // ✅ Store CTR
       clicksAll: row.clicksAll || "0", // ✅ Store Clicks All
-      ctrAll: row.ctrAll || "N/A", // ✅ Store CTR (All)
-      cpcAll: row.cpcAll || "N/A", // ✅ Store CPC (All)
+      CTRALL: row.ctrAll || "N/A", // ✅ Store CTR (All)
+      CPCAll: row.cpcAll || "N/A", // ✅ Store CPC (All)
     }));
 
     // ✅ Convert to CSV
@@ -405,8 +410,8 @@ const CampaignTable = () => {
 
         <Row gutter={16}>
           <Col span={6}>
-            <Form.Item label="Delivery" name="delivery">
-              <Input placeholder="Enter Delivery Type" />
+            <Form.Item label="sechdule" name="sechdule">
+              <Input placeholder="Enter Sechdule" />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -444,18 +449,6 @@ const CampaignTable = () => {
           <Col span={6}>
             <Form.Item label="quotetext" name="quotetext">
               <Input placeholder="quotetext" />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="frequency" name="frequency">
-              <Input placeholder="Enter frequency" />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item label="sechdule" name="sechdule">
-              <Input placeholder="Enter Sechdule" />
             </Form.Item>
           </Col>
         </Row>
