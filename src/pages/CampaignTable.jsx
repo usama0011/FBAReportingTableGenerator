@@ -42,7 +42,6 @@ const CampaignTable = () => {
     attributionSettings,
     campaignLink,
     budget,
-    pageImageLink,
     pageName,
     adName,
     Ends,
@@ -53,6 +52,7 @@ const CampaignTable = () => {
     campaignName,
     Frequency,
     Delivery,
+    pageImageLink,
   }) => {
     setLoading(true);
 
@@ -173,7 +173,7 @@ const CampaignTable = () => {
             attributionSettings,
             campaignLink,
             budget,
-            pageImageLink,
+
             pageName,
             adName,
             Ends,
@@ -183,6 +183,7 @@ const CampaignTable = () => {
             campaignName,
             Frequency,
             Delivery,
+            pageImageLink,
             sechdule,
           };
         });
@@ -229,13 +230,14 @@ const CampaignTable = () => {
       key: "campaignImageLink",
       width: 250,
     },
+
+    { title: "Delivery", dataIndex: "Delivery", key: "Delivery", width: 250 },
     {
-      title: "Page Image Link",
+      title: "pageImageLink",
       dataIndex: "pageImageLink",
       key: "pageImageLink",
       width: 250,
     },
-    { title: "Delivery", dataIndex: "Delivery", key: "Delivery", width: 250 },
     {
       title: "Bid Strategy",
       dataIndex: "bidStrategy",
@@ -396,11 +398,7 @@ const CampaignTable = () => {
               <Input placeholder="Enter Campaign Link" />
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item label="Page Image Link" name="pageImageLink">
-              <Input placeholder="Enter Page Image Link" />
-            </Form.Item>
-          </Col>
+
           <Col span={6}>
             <Form.Item label="Campaign Image Link" name="campaignImageLink">
               <Input placeholder="Enter Campaign Image Link" />

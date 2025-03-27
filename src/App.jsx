@@ -54,6 +54,7 @@ const App = () => {
       adCreative: values.adCreative,
       Delivery: values.Delivery,
       Frequency: values.Frequency,
+      pageImageLink: values.pageImageLink, // ✅ now safe
       timezoneID: values.timezoneID,
       offerID: values.offerID,
       affiliateID: values.affiliateID,
@@ -255,6 +256,7 @@ const App = () => {
               adName: staticData.adName,
               adCreative: staticData.adCreative,
               Delivery: staticData.Delivery,
+              pageImageLink: staticData.pageImageLink,
               Frequency: staticData.Frequency,
               impressionDevices: device.name,
               costPerResult: randomCost,
@@ -309,6 +311,7 @@ const App = () => {
             adName: staticData.adName,
             adCreative: staticData.adCreative,
             Delivery: staticData.Delivery,
+            pageImageLink: staticData.pageImageLink,
             Frequency: staticData.Frequency,
             impressionDevices: "All",
             costPerResult: avgCostPerResult,
@@ -391,6 +394,8 @@ const App = () => {
                 adName: staticData.adName,
                 adCreative: staticData.adCreative,
                 Delivery: staticData.Delivery,
+                pageImageLink: staticData.pageImageLink,
+
                 Frequency: staticData.Frequency,
                 impressionDevices: device.name,
                 costPerResult: randomCost.toFixed(2),
@@ -456,6 +461,7 @@ const App = () => {
               adName: staticData.adName,
               adCreative: staticData.adCreative,
               Delivery: staticData.Delivery,
+              pageImageLink: staticData.pageImageLink,
               Frequency: staticData.Frequency,
               impressionDevices: "All",
               costPerResult: iPadAvgCostPerResult,
@@ -481,6 +487,7 @@ const App = () => {
           adSetName,
           adCreative,
           Delivery,
+          pageImageLink,
           Frequency,
           adName,
           pageName,
@@ -507,6 +514,7 @@ const App = () => {
             adName: "All",
             adCreative: "All",
             Delivery: Delivery,
+            pageImageLink: pageImageLink,
             Frequency: Frequency,
             impressionDevices: "All",
             costPerResult: "",
@@ -527,6 +535,7 @@ const App = () => {
             impressions: "",
             pageID: pageID,
             Delivery: Delivery,
+            pageImageLink: pageImageLink,
             Frequency: Frequency,
             pageName,
             campaignName,
@@ -552,6 +561,7 @@ const App = () => {
             impressions: "",
             pageID: pageID,
             Delivery: Delivery,
+            pageImageLink: pageImageLink,
             Frequency: Frequency,
             pageName,
             campaignName,
@@ -577,6 +587,7 @@ const App = () => {
             impressions: "",
             pageID: pageID,
             Delivery: Delivery,
+            pageImageLink: pageImageLink,
             Frequency: Frequency,
             pageName,
             campaignName,
@@ -609,6 +620,12 @@ const App = () => {
     { title: "Page Name", dataIndex: "pageName", key: "pageName" },
     { title: "Delivery", dataIndex: "Delivery", key: "Delivery" },
     { title: "Frequency", dataIndex: "Frequency", key: "Frequency" },
+    {
+      title: "Page Image Link",
+      dataIndex: "pageImageLink",
+      key: "pageImageLink",
+      width: 250,
+    },
     {
       title: "Campaign Name",
       dataIndex: "campaignName",
@@ -867,6 +884,7 @@ const App = () => {
       "Page Name": row.pageName || "",
       // Delivery: row.Delivery || "",
       // Frequency: row.Frequency || "",
+      pageImageLink: row.pageImageLink || "",
       "Campaign Name": row.campaignName || "",
       "Ad Set Name": row.adSetName || "",
       "Ad Name": row.adName || "",
@@ -1021,6 +1039,19 @@ const App = () => {
               rules={[{ required: true, message: "Please enter Frequency" }]}
             >
               <Input placeholder="Enter Frequency" />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={6}>
+            <Form.Item
+              label="Page Image Link"
+              name="pageImageLink"
+              rules={[
+                { required: true, message: "Please enter pageImageLink" },
+              ]}
+            >
+              <Input placeholder="Enter pageImageLink" />
             </Form.Item>
           </Col>
         </Row>
