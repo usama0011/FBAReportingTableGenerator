@@ -862,7 +862,7 @@ const App = () => {
 
     // ✅ Step 5: Prepare CSV Data with replaced platform names
     const csvData = reorderedData.map((row) => ({
-      "Entry Date": row.date || "",
+      "Entry Date": row.date ? moment(row.date).format("MM/DD/YYYY") : "",
       "Page ID": row.pageID || "",
       "Page Name": row.pageName || "",
       // Delivery: row.Delivery || "",
