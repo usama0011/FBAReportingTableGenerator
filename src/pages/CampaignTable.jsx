@@ -476,6 +476,7 @@ const CampaignTable = () => {
           className="campaign-table" // ✅ Add className for styling
           dataSource={campaignData}
           columns={columns}
+          pagination={false}
           scroll={{ x: "auto" }}
         />
       )}
