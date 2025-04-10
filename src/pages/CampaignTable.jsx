@@ -326,9 +326,13 @@ const CampaignTable = () => {
       message.error("No data available to download.");
       return;
     }
+    // ✅ Sort campaignData by date (ascending)
+    const sortedCampaignData = [...campaignData].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
 
     // ✅ Map data to match correct CSV headers with requested keys
-    const csvData = campaignData.map((row) => ({
+    const csvData = sortedCampaignData.map((row) => ({
       entryDate: row.date || "N/A",
       currentSwitch: row.currentSwitch ? "true" : "false",
       pageID: row.pageID || "N/A",
