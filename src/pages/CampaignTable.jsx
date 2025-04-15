@@ -103,6 +103,7 @@ const CampaignTable = () => {
       const impressionMap = staticData.impressionByDate || {};
       const amountSpentMap = staticData.amountSpentByDate || {};
       const clicksAllMap = staticData.clicksAllByDate || {}; // ✅ Get Clicks All
+      const linkClicksAllMap = staticData.linkClicksByDate || {}; // ✅ Get Clicks All
 
       if (response.data && response.data.table) {
         const formattedData = response.data.table.map((item, index) => {
@@ -114,7 +115,7 @@ const CampaignTable = () => {
             )
             .format("YYYY-MM-DD");
 
-          const totalClicks = item.reporting.total_click || 0;
+          const totalClicks = linkClicksAllMap[date] || 0; // ✅ Now using parent state
           const amountSpent = amountSpentMap[date] || 0;
           const impressions = impressionMap[date] || 0;
           const clicksAll = clicksAllMap[date] || 0; // ✅ Get Clicks All
@@ -187,8 +188,11 @@ const CampaignTable = () => {
             sechdule,
           };
         });
-        console.log(formattedData);
-        setCampaignData(formattedData);
+        // ✅ Sort campaignData by date (ascending)
+        const sortedCampaignData = [...formattedData].sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
+        setCampaignData(sortedCampaignData);
       } else {
         message.error("No campaign data found.");
       }

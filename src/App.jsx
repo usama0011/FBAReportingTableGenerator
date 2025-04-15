@@ -137,7 +137,6 @@ const App = () => {
           },
         }
       );
-      console.log(response.data);
 
       if (response.data && response.data.table) {
         const formattedData = [];
@@ -171,7 +170,16 @@ const App = () => {
           const platform =
             item.columns.find((col) => col.column_type === "platform")?.label ||
             "N/A";
-
+          if (!allowedPlatforms.includes(platform)) {
+            // console.log({
+            //   platform,
+            //   date,
+            //   totalClicks: item.reporting.total_click,
+            //   offer,
+            //   affiliate,
+            // });
+            return; // Skip unwanted platforms
+          }
           let totalClicks = item.reporting.total_click || 0;
           let totalClicksAll = 0;
 
@@ -180,9 +188,6 @@ const App = () => {
             totalClicks * getRandomMultiplierForClicksAll()
           );
           totalClicksAll += clicksAllMain;
-          if (!allowedPlatforms.includes(platform)) {
-            return; // Skip unwanted platforms
-          }
 
           let iPadClicks = 0;
           if (platform === "macOS") {
@@ -740,6 +745,7 @@ const App = () => {
       const impressionByDate = {};
       const amountSpentByDate = {};
       const clicksAllByDate = {}; // ✅ New Clicks All Calculation
+      const linkClicksByDate = {}; // ✅ Your new addition for Link Clicks per date
 
       reportData.forEach((item) => {
         if (item.impressionDevices === "All") {
@@ -761,14 +767,26 @@ const App = () => {
           }
           amountSpentByDate[item.date] += Number(item.amountSpent) || 0;
 
-          // ✅ Sum up Clicks All
-          if (!clicksAllByDate[item.date]) {
-            clicksAllByDate[item.date] = 0;
+          if (
+            item.impressionDevices === "All" &&
+            item.platform !== "All" && // avoid fake summary rows
+            !isNaN(Number(item.clicksAll))
+          ) {
+            clicksAllByDate[item.date] =
+              (clicksAllByDate[item.date] || 0) + Number(item.clicksAll);
           }
-          clicksAllByDate[item.date] += Number(item.clicksAll) || 0;
+          // ✅ Link Clicks (totalClicks) Sum by Date (platform !== All)
+          if (
+            item.platform !== "All" &&
+            item.totalClicks !== undefined &&
+            item.totalClicks !== null &&
+            item.totalClicks !== ""
+          ) {
+            linkClicksByDate[item.date] =
+              (linkClicksByDate[item.date] || 0) + Number(item.totalClicks);
+          }
         }
       });
-
       // ✅ Add all calculated values to formData
       const updatedFormData = {
         ...formData,
@@ -776,6 +794,7 @@ const App = () => {
         impressionByDate,
         amountSpentByDate,
         clicksAllByDate, // ✅ Add Clicks All to formData
+        linkClicksByDate, // ✅ <-- added!
       };
 
       navigate("/campaingtable", { state: updatedFormData });
@@ -915,6 +934,52 @@ const App = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    // ✅ Sum of Link Clicks where Placement === "All" and Link Clicks has value
+    const placementAllLinkClicksSum = reportData.reduce((sum, row) => {
+      if (
+        row.impressionDevices === "All" &&
+        row.totalClicks !== undefined &&
+        row.totalClicks !== null &&
+        row.totalClicks !== "" &&
+        row.platform !== "All" // Skip top 4 fake rows
+      ) {
+        return sum + Number(row.totalClicks);
+      }
+      return sum;
+    }, 0);
+
+    console.log(
+      "👉 Total Link Clicks (Placement = All, non-empty):",
+      placementAllLinkClicksSum
+    );
+
+    // ✅ Group Link Clicks by Date for "Placement = All" rows (excluding platform === All)
+    const linkClicksByDate = {};
+
+    reportData.forEach((row) => {
+      if (
+        row.impressionDevices === "All" &&
+        row.platform !== "All" &&
+        row.totalClicks !== undefined &&
+        row.totalClicks !== null &&
+        row.totalClicks !== ""
+      ) {
+        const date = row.date;
+        if (!linkClicksByDate[date]) {
+          linkClicksByDate[date] = 0;
+        }
+        linkClicksByDate[date] += Number(row.totalClicks);
+      }
+    });
+
+    let grandTotalByDate = 0;
+    console.log("📅 Link Clicks Summary by Date (Placement = All):");
+    Object.entries(linkClicksByDate).forEach(([date, total]) => {
+      console.log(`🔹 ${date}: ${total}`);
+      grandTotalByDate += total;
+    });
+
+    console.log("🧮 Final Grand Total (by date):", grandTotalByDate);
   };
 
   return (
