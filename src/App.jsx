@@ -89,8 +89,8 @@ const App = () => {
     Marketplace: "#ffe599", // Light Orange
     Search: "#b4a7d6", // Light Purple
   };
-  const getRandomValue = () =>
-    (Math.random() * (0.55 - 0.11) + 0.11).toFixed(2);
+  const getRandomValue = () => (Math.random() * (0.2 - 0.1) + 0.1).toFixed(2);
+
   const getRandomMultiplierForClicksAll = () =>
     (Math.random() * (1.9 - 1.3) + 1.3).toFixed(2);
   const fetchReportingData = async ({
