@@ -32,8 +32,15 @@ const App = () => {
     setLoading(true);
 
     // Extract values from the form
-    const { offerID, affiliateID, dateRange, timezoneID, ...staticData } =
-      values;
+    const {
+      offerID,
+      affiliateID,
+      dateRange,
+      timezoneID,
+      rangeFrom,
+      rangeTo,
+      ...staticData
+    } = values;
 
     if (!dateRange || dateRange.length < 2) {
       message.error("Please select a valid date range");
@@ -89,7 +96,14 @@ const App = () => {
     Marketplace: "#ffe599", // Light Orange
     Search: "#b4a7d6", // Light Purple
   };
-  const getRandomValue = () => (Math.random() * (0.2 - 0.08) + 0.08).toFixed(2);
+  const getRandomValue = (from, to) => {
+    const min = parseFloat(from);
+    const max = parseFloat(to);
+    if (isNaN(min) || isNaN(max) || min >= max) {
+      return (Math.random() * (0.2 - 0.08) + 0.08).toFixed(2); // fallback
+    }
+    return (Math.random() * (max - min) + min).toFixed(2);
+  };
 
   const getRandomMultiplierForClicksAll = () =>
     (Math.random() * (1.9 - 1.3) + 1.3).toFixed(2);
@@ -100,6 +114,8 @@ const App = () => {
     timezoneId,
     offerId,
     affiliateId,
+    rangeFrom,
+    rangeTo,
   }) => {
     setLoading(true);
     const payload = {
@@ -210,7 +226,7 @@ const App = () => {
               deviceClicks * getRandomMultiplierForClicksAll()
             );
             totalClicksAll += clicksAllImpressionDevice;
-            const randomCost = parseFloat(getRandomValue());
+            const randomCost = parseFloat(getRandomValue(rangeFrom, rangeTo));
 
             const amountSpent = deviceClicks * randomCost;
             const deviceCPC =
@@ -349,7 +365,7 @@ const App = () => {
               );
               iPadTotalClicksAll += clicksAlliPadImpression;
 
-              const randomCost = parseFloat(getRandomValue());
+              const randomCost = parseFloat(getRandomValue(rangeFrom, rangeTo));
               const amountSpent = deviceClicks * randomCost;
 
               const reach = deviceClicks * getRandomMultiplier();
@@ -1117,6 +1133,26 @@ const App = () => {
               ]}
             >
               <Input placeholder="Enter pageImageLink" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="CPC Range From"
+              name="rangeFrom"
+              rules={[
+                { required: true, message: "Please enter CPC Range From" },
+              ]}
+            >
+              <Input type="number" step="0.01" placeholder="e.g. 0.08" />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="CPC Range To"
+              name="rangeTo"
+              rules={[{ required: true, message: "Please enter CPC Range To" }]}
+            >
+              <Input type="number" step="0.01" placeholder="e.g. 0.2" />
             </Form.Item>
           </Col>
         </Row>
