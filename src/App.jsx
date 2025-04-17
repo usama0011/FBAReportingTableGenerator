@@ -78,6 +78,8 @@ const App = () => {
       timezoneId: timezoneID,
       offerId: offerID,
       affiliateId: affiliateID,
+      rangeFrom, // ✅ add this
+      rangeTo, // ✅ and this
     });
   };
 
@@ -99,9 +101,6 @@ const App = () => {
   const getRandomValue = (from, to) => {
     const min = parseFloat(from);
     const max = parseFloat(to);
-    if (isNaN(min) || isNaN(max) || min >= max) {
-      return (Math.random() * (0.2 - 0.08) + 0.08).toFixed(2); // fallback
-    }
     return (Math.random() * (max - min) + min).toFixed(2);
   };
 
