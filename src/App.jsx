@@ -635,11 +635,11 @@ const App = () => {
     }
   };
   const columns = [
-    { title: "Page ID", dataIndex: "pageID", key: "pageID" },
-    { title: "Entry Date", dataIndex: "date", key: "date" },
-    { title: "Page Name", dataIndex: "pageName", key: "pageName" },
-    { title: "Delivery", dataIndex: "Delivery", key: "Delivery" },
-    { title: "Frequency", dataIndex: "Frequency", key: "Frequency" },
+    { title: "Page ID", dataIndex: "pageID", key: "pageID",width: 250 },
+    { title: "Entry Date", dataIndex: "date", key: "date",width: 250 },
+    { title: "Page Name", dataIndex: "pageName", key: "pageName",width: 250 },
+    { title: "Delivery", dataIndex: "Delivery", key: "Delivery",width: 250 },
+    { title: "Frequency", dataIndex: "Frequency", key: "Frequency",width: 250 },
     {
       title: "Page Image Link",
       dataIndex: "pageImageLink",
@@ -650,15 +650,19 @@ const App = () => {
       title: "Campaign Name",
       dataIndex: "campaignName",
       key: "campaignName",
-      width: "200px",
+      width: 200
     },
-    { title: "Ad Set Name", dataIndex: "adSetName", key: "adSetName" },
-    { title: "Ad Name", dataIndex: "adName", key: "adName" },
-    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative" },
+    { title: "Ad Set Name", dataIndex: "adSetName", key: "adSetName",    width: 250,
+ },
+    { title: "Ad Name", dataIndex: "adName", key: "adName",    width: 250,
+ },
+    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative",    width: 250,
+ },
     {
       title: "Platform",
       dataIndex: "platform",
       key: "platform",
+      width: 250,
       render: (text) => (
         <span
           style={{
@@ -675,7 +679,7 @@ const App = () => {
       title: "Impression Devices",
       dataIndex: "impressionDevices",
       key: "impressionDevices",
-      width: "200px",
+      width: 200,
       render: (text) => (
         <span
           style={{
@@ -996,7 +1000,7 @@ const App = () => {
 
     console.log("🧮 Final Grand Total (by date):", grandTotalByDate);
   };
-
+   console.log(reportData)
   return (
     <div className="container">
       <h2>Ad Campaign Form</h2>
