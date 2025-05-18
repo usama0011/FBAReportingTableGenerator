@@ -635,34 +635,38 @@ const App = () => {
     }
   };
   const columns = [
-    { title: "Page ID", dataIndex: "pageID", key: "pageID",width: 250 },
-    { title: "Entry Date", dataIndex: "date", key: "date",width: 250 },
-    { title: "Page Name", dataIndex: "pageName", key: "pageName",width: 250 },
-    { title: "Delivery", dataIndex: "Delivery", key: "Delivery",width: 250 },
-    { title: "Frequency", dataIndex: "Frequency", key: "Frequency",width: 250 },
+    { title: "Page ID", dataIndex: "pageID", key: "pageID",width: 200 },
+    { title: "Entry Date", dataIndex: "date", key: "date",width: 200 },
+    { title: "Page Name", dataIndex: "pageName", key: "pageName",width: 200 },
+    { title: "Delivery", dataIndex: "Delivery", key: "Delivery",width: 200 },
+    { title: "Frequency", dataIndex: "Frequency", key: "Frequency",width: 200 },
     {
-      title: "Page Image Link",
-      dataIndex: "pageImageLink",
-      key: "pageImageLink",
-      width: 250,
-    },
+  title: "Page Image Link",
+  dataIndex: "pageImageLink",
+  key: "pageImageLink",
+  width: 200,
+  render: (text) => (
+    text.length > 30 ? `${text.substring(0, 30)}...` : text
+  ),
+},
+
     {
       title: "Campaign Name",
       dataIndex: "campaignName",
       key: "campaignName",
       width: 200
     },
-    { title: "Ad Set Name", dataIndex: "adSetName", key: "adSetName",    width: 250,
+    { title: "Ad Set Name", dataIndex: "adSetName", key: "adSetName",    width: 200,
  },
-    { title: "Ad Name", dataIndex: "adName", key: "adName",    width: 250,
+    { title: "Ad Name", dataIndex: "adName", key: "adName",    width: 200,
  },
-    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative",    width: 250,
+    { title: "Ad Creative", dataIndex: "adCreative", key: "adCreative",    width: 200,
  },
     {
       title: "Platform",
       dataIndex: "platform",
       key: "platform",
-      width: 250,
+      width: 200,
       render: (text) => (
         <span
           style={{
